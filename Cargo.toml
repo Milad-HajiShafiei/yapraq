@@ -9,7 +9,7 @@ repository = "https://github.com/Milad-HajiShafiei/yapraq"
 readme = "README.md"
 keywords = ["tui", "terminal", "monitor", "file-manager", "system"]
 categories = ["command-line-utilities", "development-tools"]
-authors = ["Milad <https://github.com/Milad-HajiShafiei/yapraq>"]
+authors = ["Milad Hajishafiei <https://github.com/Milad-HajiShafiei/yapraq>"]
 
 [dependencies]
 # TUI & Backend
