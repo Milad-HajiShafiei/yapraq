@@ -34,7 +34,7 @@
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/yapraq.git
+git clone https://github.com/Milad-HajiShafiei/yapraq.git
 cd yapraq
 
 # Build the project

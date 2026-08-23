@@ -32,8 +32,10 @@ impl EventHandler {
                                     crossterm::event::Event::Mouse(_) => None,
                                     _ => None,
                                 };
-                                if let Some(event) = event && tx.send(event).is_err() {
-                                    break;
+                                if let Some(event) = event {
+                                    if tx.send(event).is_err() {
+                                        break;
+                                    }
                                 }
                             }
                             Err(_) => {

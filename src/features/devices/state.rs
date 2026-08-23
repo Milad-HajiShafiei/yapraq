@@ -60,15 +60,15 @@ impl DevicesState {
 
                 if let Ok(handle) = device.open() {
                     let timeout = std::time::Duration::from_secs(1);
-                    if let Ok(languages) = handle.read_languages(timeout)
-                        && let Some(&lang) = languages.first()
-                    {
-                        manufacturer = handle
-                            .read_manufacturer_string(lang, &desc, timeout)
-                            .unwrap_or(manufacturer);
-                        product = handle
-                            .read_product_string(lang, &desc, timeout)
-                            .unwrap_or(product);
+                    if let Ok(languages) = handle.read_languages(timeout) {
+                        if let Some(&lang) = languages.first() {
+                            manufacturer = handle
+                                .read_manufacturer_string(lang, &desc, timeout)
+                                .unwrap_or(manufacturer);
+                            product = handle
+                                .read_product_string(lang, &desc, timeout)
+                                .unwrap_or(product);
+                        }
                     }
                 }
 

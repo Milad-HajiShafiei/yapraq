@@ -2,6 +2,14 @@
 name = "yapraq"
 version = "0.1.1"
 edition = "2024"
+rust-version = "1.98"
+description = "A beautiful terminal-based system monitor and workspace manager"
+license = "MIT"
+repository = "https://github.com/Milad-HajiShafiei/yapraq"
+readme = "README.md"
+keywords = ["tui", "terminal", "monitor", "file-manager", "system"]
+categories = ["command-line-utilities", "development-tools"]
+authors = ["Milad <https://github.com/Milad-HajiShafiei/yapraq>"]
 
 [dependencies]
 # TUI & Backend
@@ -31,3 +39,9 @@ directories = "5.0.1"
 chrono = "0.4.38"
 unicode-width = "0.1.13"
 dirs = "6.0.0"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true
