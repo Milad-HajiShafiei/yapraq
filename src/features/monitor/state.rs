@@ -1,6 +1,16 @@
 use sysinfo::{Networks, System};
 
 const HISTORY_LENGTH: usize = 100;
+const SNAPSHOT_MAX: usize = 200;
+
+/// A single snapshot entry: (cpu%, ram%, net_rx_bytes, net_tx_bytes)
+#[derive(Debug, Clone)]
+pub struct SnapshotEntry {
+    pub cpu_percent: u8,
+    pub ram_percent: u8,
+    pub net_rx: u64,
+    pub net_tx: u64,
+}
 
 #[derive(Debug)]
 pub struct MonitorData {
@@ -16,6 +26,7 @@ pub struct MonitorData {
     pub mem_usage_percent: f64,
     pub net_rx: u64,
     pub net_tx: u64,
+    pub snapshot_history: Vec<SnapshotEntry>,
 }
 
 impl MonitorData {
@@ -37,6 +48,7 @@ impl MonitorData {
             mem_usage_percent: 0.0,
             net_rx: 0,
             net_tx: 0,
+            snapshot_history: Vec::new(),
         }
     }
 
@@ -80,6 +92,16 @@ impl MonitorData {
         );
         self.net_rx = rx;
         self.net_tx = tx;
+
+        self.snapshot_history.push(SnapshotEntry {
+            cpu_percent: global_cpu.min(100) as u8,
+            ram_percent: self.mem_usage_percent.round().min(100.0) as u8,
+            net_rx: self.net_rx,
+            net_tx: self.net_tx,
+        });
+        if self.snapshot_history.len() > SNAPSHOT_MAX {
+            self.snapshot_history.remove(0);
+        }
     }
 }
 

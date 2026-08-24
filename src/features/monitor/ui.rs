@@ -9,7 +9,7 @@ use ratatui::{
     widgets::{Block, BorderType, Borders, Gauge, Paragraph, Sparkline},
 };
 
-pub fn render(frame: &mut Frame, area: Rect, data: &MonitorData) {
+pub fn render(frame: &mut Frame, area: Rect, data: &MonitorData, scroll_offset: usize) {
     let rows = Layout::default()
         .direction(Direction::Vertical)
         .margin(1)
@@ -74,43 +74,58 @@ pub fn render(frame: &mut Frame, area: Rect, data: &MonitorData) {
         let snapshot = Block::default()
             .borders(Borders::ALL)
             .border_type(BorderType::Rounded)
-            .title(" Live snapshot ")
+            .title(format!(" Live snapshot  ·  {} entries ", data.snapshot_history.len()))
             .title_style(Theme::block_title())
             .border_style(Theme::border())
             .style(Style::default().bg(Theme::current().surface_alt));
-        let snapshot_text = vec![
-            Line::from(vec![
-                Span::styled(
-                    " CPU ",
-                    Style::default().fg(Theme::current().background).bg(Theme::current().accent),
-                ),
-                Span::styled(
-                    format!("  {}%   ", data.cpu_history.last().unwrap_or(&0)),
-                    Style::default()
-                        .fg(Theme::current().text)
-                        .add_modifier(Modifier::BOLD),
-                ),
-                Span::styled(
-                    "RAM ",
-                    Style::default().fg(Theme::current().background).bg(Theme::current().secondary),
-                ),
-                Span::styled(
-                    format!("  {}%", data.mem_usage_percent.round() as u16),
-                    Style::default()
-                        .fg(Theme::current().text)
-                        .add_modifier(Modifier::BOLD),
-                ),
-            ]),
-            Line::from(Span::styled(
-                format!(
-                    "  Network total  ↓ {}  ↑ {}",
-                    format_bytes(data.net_rx),
-                    format_bytes(data.net_tx)
-                ),
-                Style::default().fg(Theme::current().muted),
-            )),
-        ];
-        frame.render_widget(Paragraph::new(snapshot_text).block(snapshot), rows[3]);
+
+        let snapshot_text: Vec<Line> = data
+            .snapshot_history
+            .iter()
+            .map(|entry| {
+                Line::from(vec![
+                    Span::styled(
+                        " CPU ",
+                        Style::default()
+                            .fg(Theme::current().background)
+                            .bg(Theme::current().accent),
+                    ),
+                    Span::styled(
+                        format!(" {:>3}%  ", entry.cpu_percent),
+                        Style::default()
+                            .fg(Theme::current().text)
+                            .add_modifier(Modifier::BOLD),
+                    ),
+                    Span::styled(
+                        "RAM ",
+                        Style::default()
+                            .fg(Theme::current().background)
+                            .bg(Theme::current().secondary),
+                    ),
+                    Span::styled(
+                        format!(" {:>3}%  ", entry.ram_percent),
+                        Style::default()
+                            .fg(Theme::current().text)
+                            .add_modifier(Modifier::BOLD),
+                    ),
+                    Span::styled(
+                        format!(
+                            "↓ {}  ↑ {}",
+                            format_bytes(entry.net_rx),
+                            format_bytes(entry.net_tx)
+                        ),
+                        Style::default().fg(Theme::current().muted),
+                    ),
+                ])
+            })
+            .collect();
+
+        let max_scroll = snapshot_text.len().saturating_sub(rows[3].height as usize);
+        let clamped_offset = scroll_offset.min(max_scroll);
+        frame.render_widget(
+            Paragraph::new(snapshot_text).block(snapshot).scroll((clamped_offset as u16, 0)),
+            rows[3],
+        );
     }
 }
 

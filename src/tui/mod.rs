@@ -42,7 +42,7 @@ impl UI {
 
         match app.current_tab {
             Tab::Monitor => {
-                crate::features::monitor::ui::render(frame, body_chunks[1], &app.monitor)
+                crate::features::monitor::ui::render(frame, body_chunks[1], &app.monitor, app.scroll_offset)
             }
             Tab::Apps => crate::features::apps::ui::render(frame, body_chunks[1], &app.apps),
             Tab::Packages => {
@@ -56,7 +56,7 @@ impl UI {
             Tab::Devices => {
                 crate::features::devices::ui::render(frame, body_chunks[1], &app.devices)
             }
-            Tab::Info => crate::features::info::ui::render(frame, body_chunks[1], &app.info),
+            Tab::Info => crate::features::info::ui::render(frame, body_chunks[1], &app.info, app.scroll_offset),
         }
 
         if app.show_settings {

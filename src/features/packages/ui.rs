@@ -4,7 +4,7 @@ use ratatui::{
     Frame,
     layout::{Constraint, Direction, Layout, Rect},
     style::{Modifier, Style},
-    widgets::{Block, BorderType, Borders, Cell, Paragraph, Row, Table},
+    widgets::{Block, BorderType, Borders, Cell, Paragraph, Row, Table, TableState},
 };
 
 pub fn render(frame: &mut Frame, area: Rect, state: &PackagesState) {
@@ -55,9 +55,20 @@ pub fn render(frame: &mut Frame, area: Rect, state: &PackagesState) {
     )
     .block(block)
     .row_highlight_style(Style::default().add_modifier(Modifier::REVERSED))
-    .highlight_symbol("➤ ");
+    .highlight_symbol("> ");
 
-    frame.render_widget(table, chunks[0]);
+    // Auto-scroll: keep selected row visible
+    let visible_rows = chunks[0].height.saturating_sub(3) as usize; // borders + header
+    let offset = if state.items.len() > visible_rows {
+        state.selected.min(state.items.len() - visible_rows)
+    } else {
+        0
+    };
+    let mut table_state = TableState::new()
+        .with_selected(Some(state.selected))
+        .with_offset(offset);
+
+    frame.render_stateful_widget(table, chunks[0], &mut table_state);
 
     // Uninstall Command Bar
     let cmd_text = if state.uninstall_cmd.is_empty() {

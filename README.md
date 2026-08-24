@@ -286,45 +286,4 @@ cargo test app::tests
 
 MIT License
 
-## 🙏 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-### Security Contributions
-
-If you find a security vulnerability, please report it responsibly:
-- Email: security@yapraq.dev (or create a private issue)
-- Do not disclose vulnerabilities publicly until a fix is available
-
-## 📝 Changelog
-
-### v0.1.0 (Initial Release)
-- Dashboard with real-time system monitoring
-- File manager with create, rename, and delete operations
-- Junk file scanner and cleaner
-- Application browser
-- Package manager with uninstall commands
-- USB device detection
-- System information display
-- 5 beautiful themes
-- Settings modal
-- Comprehensive help system
-
-### v0.1.1 (Security Hardening)
-- **Security**: Added mutex poisoning recovery for theme system
-- **Security**: Added error message sanitization to hide sensitive paths
-- **Security**: Added filename sanitization to prevent injection
-- **Security**: Added path safety validation for delete operations
-- **Security**: Added protection against dangerous paths (proc, sys, ssh, gnupg)
-- **Tests**: Added 10 new security-focused unit tests
-- **Docs**: Added comprehensive security documentation
-
----
-
 **Made with ❤️ and Rust** 🦀

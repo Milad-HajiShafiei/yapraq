@@ -17,7 +17,7 @@ impl Footer {
         let mut hints = vec![
             ("↑↓", "navigate"),
             ("j/k", "select"),
-            ("s", "settings"),
+            ("Ctrl+S", "settings"),
             ("?", "help"),
             ("q", "quit"),
         ];
@@ -33,6 +33,8 @@ impl Footer {
                 ("r", "refresh"),
                 ("?", "help"),
             ];
+        } else if app.current_tab == Tab::Apps || app.current_tab == Tab::Packages || app.current_tab == Tab::Junk {
+            hints.insert(1, ("s", "scan"));
         }
 
         let mut spans = Vec::new();

@@ -175,6 +175,7 @@ pub struct App {
     pub delete_confirmation: Option<PathBuf>,
     pub status_message: String,
     pub files_rescan_requested: bool,
+    pub scroll_offset: usize,
 }
 
 impl App {
@@ -200,6 +201,7 @@ impl App {
             delete_confirmation: None,
             status_message: "Ready".to_string(),
             files_rescan_requested: false,
+            scroll_offset: 0,
         }
     }
 
@@ -219,7 +221,7 @@ impl App {
 
         if self.show_settings {
             return match key.code {
-                KeyCode::Esc | KeyCode::Char('s') => Some(Action::CancelOverlay),
+                KeyCode::Esc => Some(Action::CancelOverlay),
                 KeyCode::Up | KeyCode::Char('h') => Some(Action::SettingsPrevSection),
                 KeyCode::Down | KeyCode::Char('l') => Some(Action::SettingsNextSection),
                 KeyCode::Char('j') => Some(Action::SettingsNextItem),
@@ -260,28 +262,27 @@ impl App {
             }
             KeyCode::Char('q') => Some(Action::Quit),
             KeyCode::Char('?') => Some(Action::ToggleHelp),
-            KeyCode::Char('s') => Some(Action::ToggleSettings),
+            KeyCode::Char('s') if key.modifiers.contains(KeyModifiers::CONTROL) => Some(Action::ToggleSettings),
             KeyCode::Up => Some(Action::PreviousTab),
             KeyCode::Down => Some(Action::NextTab),
+
             KeyCode::Char('j') => Some(Action::SelectNext),
             KeyCode::Char('k') => Some(Action::SelectPrev),
             KeyCode::Char('r') if self.current_tab == Tab::Devices => Some(Action::RefreshDevices),
             KeyCode::Char('r') if self.current_tab == Tab::Files => Some(Action::RefreshFiles),
-            KeyCode::Char('S') if self.current_tab == Tab::Junk && !self.junk.is_scanning => {
-                Some(Action::ScanJunk)
-            }
             KeyCode::Char('d') if self.current_tab == Tab::Junk => Some(Action::DeleteJunk),
             KeyCode::Char('D') if self.current_tab == Tab::Junk => Some(Action::DeleteAllJunk),
             KeyCode::Char('i') if self.current_tab == Tab::Packages => {
                 Some(Action::ShowUninstallCmd)
             }
-            KeyCode::Char('a') if self.current_tab == Tab::Apps && !self.apps.is_scanning => {
+            KeyCode::Char('s') if self.current_tab == Tab::Apps && !self.apps.is_scanning => {
                 Some(Action::ScanApps)
             }
-            KeyCode::Char('p')
-                if self.current_tab == Tab::Packages && !self.packages.is_scanning =>
-            {
+            KeyCode::Char('s') if self.current_tab == Tab::Packages && !self.packages.is_scanning => {
                 Some(Action::ScanPackages)
+            }
+            KeyCode::Char('s') if self.current_tab == Tab::Junk && !self.junk.is_scanning => {
+                Some(Action::ScanJunk)
             }
             KeyCode::Char('n') if self.current_tab == Tab::Files => Some(Action::StartNewFolder),
             KeyCode::Char('f') if self.current_tab == Tab::Files => Some(Action::StartNewFile),
@@ -317,9 +318,41 @@ impl App {
     pub fn update(&mut self, action: Action) {
         match action {
             Action::Quit => self.running = false,
-            Action::SwitchTab(tab) => self.current_tab = tab,
-            Action::PreviousTab => self.current_tab = self.current_tab.adjacent(-1),
-            Action::NextTab => self.current_tab = self.current_tab.adjacent(1),
+            Action::SwitchTab(tab) => {
+                self.current_tab = tab;
+                self.scroll_offset = 0;
+                match tab {
+                    Tab::Apps if self.apps.items.is_empty() && !self.apps.is_scanning => {
+                        self.apps.is_scanning = true;
+                        self.apps.items.clear();
+                        self.apps.selected = 0;
+                        self.status_message = "Scanning installed applications".to_string();
+                    }
+                    Tab::Packages if self.packages.items.is_empty() && !self.packages.is_scanning => {
+                        self.packages.is_scanning = true;
+                        self.packages.items.clear();
+                        self.packages.selected = 0;
+                        self.packages.uninstall_cmd.clear();
+                        self.status_message = "Scanning installed packages".to_string();
+                    }
+                    Tab::Junk if self.junk.items.is_empty() && !self.junk.is_scanning => {
+                        self.junk.is_scanning = true;
+                        self.junk.items.clear();
+                        self.junk.selected = 0;
+                        self.junk.total_size = 0;
+                        self.status_message = "Scanning for reclaimable files".to_string();
+                    }
+                    _ => {}
+                }
+            }
+            Action::PreviousTab => {
+                self.current_tab = self.current_tab.adjacent(-1);
+                self.scroll_offset = 0;
+            }
+            Action::NextTab => {
+                self.current_tab = self.current_tab.adjacent(1);
+                self.scroll_offset = 0;
+            }
             Action::ToggleHelp => self.show_help = !self.show_help,
             Action::ToggleSettings => {
                 self.show_settings = !self.show_settings;
@@ -330,6 +363,12 @@ impl App {
                 self.monitor.update();
                 if self.current_tab == Tab::Storage {
                     self.storage.update();
+                }
+                // Auto-scroll: Monitor follows bottom (latest entries), Info shows from top
+                match self.current_tab {
+                    Tab::Monitor => self.scroll_offset = usize::MAX,
+                    Tab::Info => self.scroll_offset = 0,
+                    _ => {}
                 }
             }
             Action::SelectNext => match self.current_tab {
@@ -457,6 +496,7 @@ impl App {
                 };
             }
             Action::SettingsSelect => self.apply_settings_selection(),
+
         }
     }
 

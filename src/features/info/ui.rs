@@ -8,7 +8,7 @@ use ratatui::{
     widgets::{Block, BorderType, Borders, Paragraph},
 };
 
-pub fn render(frame: &mut Frame, area: Rect, state: &InfoState) {
+pub fn render(frame: &mut Frame, area: Rect, state: &InfoState, scroll_offset: usize) {
     let block = Block::default()
         .borders(Borders::ALL)
         .border_type(BorderType::Rounded)
@@ -56,6 +56,12 @@ pub fn render(frame: &mut Frame, area: Rect, state: &InfoState) {
         ]),
     ];
 
-    let paragraph = Paragraph::new(text).block(block);
+    let inner_height = block.inner(area).height as usize;
+    let content_lines = text.len();
+    let max_scroll = content_lines.saturating_sub(inner_height);
+    let clamped_offset = scroll_offset.min(max_scroll);
+    let paragraph = Paragraph::new(text)
+        .block(block)
+        .scroll((clamped_offset as u16, 0));
     frame.render_widget(paragraph, area);
 }

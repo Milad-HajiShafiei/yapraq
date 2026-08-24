@@ -36,11 +36,12 @@ impl Help {
             shortcut("↑ / ↓", "Move between sidebar sections"),
             shortcut("1 - 8 / F1 - F8", "Jump directly to a section"),
             shortcut("j / k", "Move through the current list"),
+            shortcut("Auto-scroll", "Content scrolls automatically"),
             shortcut("? / Esc", "Close this help"),
             Line::from(""),
             section("General actions"),
             shortcut("q / Ctrl-C", "Quit"),
-            shortcut("s", "Open settings (theme, about)"),
+            shortcut("Ctrl+S", "Open settings (theme, about)"),
             shortcut("Enter", "Open the selected file or folder"),
             shortcut("Backspace", "Go to the parent folder in Files"),
         ];
@@ -60,11 +61,9 @@ impl Help {
         lines.extend([
             Line::from(""),
             section("Tools"),
-            shortcut("S", "Scan junk files"),
+            shortcut("s", "Scan (context-sensitive)"),
             shortcut("d / D", "Delete selected / all junk"),
-            shortcut("a", "Scan applications"),
-            shortcut("p", "Scan packages"),
-            shortcut("r", "Refresh USB devices"),
+            shortcut("r", "Refresh (devices/files)"),
         ]);
 
         let content = Paragraph::new(lines).block(block.clone());
