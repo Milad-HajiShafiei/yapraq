@@ -33,14 +33,20 @@ impl Footer {
                 ("r", "refresh"),
                 ("?", "help"),
             ];
-        } else if app.current_tab == Tab::Apps || app.current_tab == Tab::Packages || app.current_tab == Tab::Junk {
+        } else if app.current_tab == Tab::Apps
+            || app.current_tab == Tab::Packages
+            || app.current_tab == Tab::Junk
+        {
             hints.insert(1, ("s", "scan"));
         }
 
         let mut spans = Vec::new();
         for (index, (key, label)) in hints.into_iter().enumerate() {
             if index > 0 {
-                spans.push(Span::styled("  ·  ", Style::default().fg(Theme::current().muted)));
+                spans.push(Span::styled(
+                    "  ·  ",
+                    Style::default().fg(Theme::current().muted),
+                ));
             }
             spans.push(Span::styled(
                 format!(" {key} "),

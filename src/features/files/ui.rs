@@ -6,7 +6,7 @@ use ratatui::{
     layout::{Constraint, Direction, Layout, Rect},
     style::{Modifier, Style},
     text::{Line, Span},
-    widgets::{Block, BorderType, Borders, Cell, Paragraph, Row, Table},
+    widgets::{Block, BorderType, Borders, Cell, Paragraph, Row, Table, TableState},
 };
 
 pub fn render(frame: &mut Frame, area: Rect, state: &FilesState) {
@@ -98,7 +98,16 @@ pub fn render(frame: &mut Frame, area: Rect, state: &FilesState) {
     .row_highlight_style(Style::default().add_modifier(Modifier::REVERSED))
     .highlight_symbol("▌");
 
-    frame.render_widget(table, layout[0]);
+    let visible_rows = layout[0].height.saturating_sub(3) as usize;
+    let offset = if state.items.len() > visible_rows {
+        state.selected.min(state.items.len() - visible_rows)
+    } else {
+        0
+    };
+    let mut table_state = TableState::new()
+        .with_selected(Some(state.selected))
+        .with_offset(offset);
+    frame.render_stateful_widget(table, layout[0], &mut table_state);
     render_hint(
         frame,
         layout[1],

@@ -5,7 +5,7 @@ use ratatui::{
     Frame,
     layout::{Constraint, Rect},
     style::{Modifier, Style},
-    widgets::{Block, BorderType, Borders, Cell, Paragraph, Row, Table},
+    widgets::{Block, BorderType, Borders, Cell, Paragraph, Row, Table, TableState},
 };
 
 pub fn render(frame: &mut Frame, area: Rect, state: &AppsState) {
@@ -40,7 +40,8 @@ pub fn render(frame: &mut Frame, area: Rect, state: &AppsState) {
             Cell::from(app.name.clone()),
             Cell::from(app.path.to_string_lossy().to_string())
                 .style(Style::default().fg(Theme::current().muted)),
-            Cell::from(format_bytes(app.size)).style(Style::default().fg(Theme::current().secondary)),
+            Cell::from(format_bytes(app.size))
+                .style(Style::default().fg(Theme::current().secondary)),
         ])
         .style(style)
     });
@@ -64,5 +65,14 @@ pub fn render(frame: &mut Frame, area: Rect, state: &AppsState) {
     .row_highlight_style(Style::default().add_modifier(Modifier::REVERSED))
     .highlight_symbol("➤ ");
 
-    frame.render_widget(table, area);
+    let visible_rows = area.height.saturating_sub(3) as usize;
+    let offset = if state.items.len() > visible_rows {
+        state.selected.min(state.items.len() - visible_rows)
+    } else {
+        0
+    };
+    let mut table_state = TableState::new()
+        .with_selected(Some(state.selected))
+        .with_offset(offset);
+    frame.render_stateful_widget(table, area, &mut table_state);
 }

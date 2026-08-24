@@ -47,9 +47,25 @@ impl PackagesState {
         if let Some(pkg) = self.items.get(self.selected) {
             self.uninstall_cmd = match pkg.manager.as_str() {
                 "brew" => format!("brew uninstall {}", pkg.name),
+                "macports" => format!("sudo port uninstall {}", pkg.name),
                 "apt" => format!("sudo apt remove {}", pkg.name),
                 "pacman" => format!("sudo pacman -Rns {}", pkg.name),
+                "rpm" => format!("sudo dnf remove {}", pkg.name),
+                "snap" => format!("sudo snap remove {}", pkg.name),
+                "flatpak" => format!("flatpak uninstall {}", pkg.name),
+                "nix" => format!("nix-env --uninstall {}", pkg.name),
                 "winget" => format!("winget uninstall {}", pkg.name),
+                "scoop" => format!("scoop uninstall {}", pkg.name),
+                "choco" => format!("choco uninstall {}", pkg.name),
+                "pip" => format!("pip uninstall {}", pkg.name),
+                "uv" => format!("uv tool uninstall {}", pkg.name),
+                "conda" => format!("conda remove {}", pkg.name),
+                "npm" => format!("npm uninstall -g {}", pkg.name),
+                "yarn" => format!("yarn global remove {}", pkg.name),
+                "pnpm" => format!("pnpm remove -g {}", pkg.name),
+                "cargo" => format!("cargo uninstall {}", pkg.name),
+                "gem" => format!("gem uninstall {}", pkg.name),
+                "go" => format!("go clean -modcache # {}", pkg.name),
                 _ => "Unknown package manager".to_string(),
             };
         } else {

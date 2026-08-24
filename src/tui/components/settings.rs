@@ -88,10 +88,7 @@ impl Settings {
                 } else {
                     Style::default().fg(Theme::current().text)
                 };
-                Line::from(Span::styled(
-                    format!("  {}  ", section.label()),
-                    style,
-                ))
+                Line::from(Span::styled(format!("  {}  ", section.label()), style))
             })
             .collect();
 
@@ -140,10 +137,7 @@ impl Settings {
                 };
                 Line::from(vec![
                     Span::styled(indicator, style),
-                    Span::styled(
-                        format!("{}", kind.name()),
-                        style,
-                    ),
+                    Span::styled(format!("{}", kind.name()), style),
                     if active {
                         Span::styled("  (active)", Style::default().fg(Theme::current().muted))
                     } else {

@@ -1,7 +1,9 @@
 pub mod components;
 pub mod theme;
 
-use self::components::{footer::Footer, header::Header, help::Help, settings::Settings, sidebar::Sidebar};
+use self::components::{
+    footer::Footer, header::Header, help::Help, settings::Settings, sidebar::Sidebar,
+};
 use crate::app::{App, FileDialog, Tab};
 use crate::tui::theme::Theme;
 use ratatui::{
@@ -41,9 +43,12 @@ impl UI {
         Sidebar::render(frame, body_chunks[0], &app.current_tab);
 
         match app.current_tab {
-            Tab::Monitor => {
-                crate::features::monitor::ui::render(frame, body_chunks[1], &app.monitor, app.scroll_offset)
-            }
+            Tab::Monitor => crate::features::monitor::ui::render(
+                frame,
+                body_chunks[1],
+                &app.monitor,
+                app.scroll_offset,
+            ),
             Tab::Apps => crate::features::apps::ui::render(frame, body_chunks[1], &app.apps),
             Tab::Packages => {
                 crate::features::packages::ui::render(frame, body_chunks[1], &app.packages)
@@ -56,7 +61,12 @@ impl UI {
             Tab::Devices => {
                 crate::features::devices::ui::render(frame, body_chunks[1], &app.devices)
             }
-            Tab::Info => crate::features::info::ui::render(frame, body_chunks[1], &app.info, app.scroll_offset),
+            Tab::Info => crate::features::info::ui::render(
+                frame,
+                body_chunks[1],
+                &app.info,
+                app.scroll_offset,
+            ),
         }
 
         if app.show_settings {
@@ -110,7 +120,10 @@ fn render_input_dialog(frame: &mut Frame, area: Rect, app: &App, dialog: FileDia
     frame.render_widget(
         Paragraph::new(Line::from(vec![
             Span::styled("> ", Style::default().fg(Theme::current().accent)),
-            Span::styled(&app.dialog_input, Style::default().fg(Theme::current().text)),
+            Span::styled(
+                &app.dialog_input,
+                Style::default().fg(Theme::current().text),
+            ),
             Span::styled("_", Style::default().fg(Theme::current().accent)),
         ]))
         .block(
@@ -162,12 +175,16 @@ fn render_delete_dialog(frame: &mut Frame, area: Rect, target: &std::path::Path)
         Line::from(vec![
             Span::styled(
                 " y/Enter ",
-                Style::default().fg(Theme::current().background).bg(Theme::current().secondary),
+                Style::default()
+                    .fg(Theme::current().background)
+                    .bg(Theme::current().secondary),
             ),
             Span::styled(" delete    ", Style::default().fg(Theme::current().text)),
             Span::styled(
                 " n/Esc ",
-                Style::default().fg(Theme::current().background).bg(Theme::current().accent),
+                Style::default()
+                    .fg(Theme::current().background)
+                    .bg(Theme::current().accent),
             ),
             Span::styled(" cancel", Style::default().fg(Theme::current().text)),
         ]),

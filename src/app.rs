@@ -5,7 +5,6 @@ use std::{
 };
 
 use crate::events::Event;
-use crate::utils::{sanitize_error_message, sanitize_filename, is_path_safe};
 use crate::features::apps::{AppsMsg, AppsState};
 use crate::features::devices::DevicesState;
 use crate::features::files::{FileMsg, FilesState};
@@ -14,6 +13,7 @@ use crate::features::junk::{JunkMsg, JunkState};
 use crate::features::monitor::MonitorData;
 use crate::features::packages::{PackagesState, PkgsMsg};
 use crate::features::storage::StorageData;
+use crate::utils::{is_path_safe, sanitize_error_message, sanitize_filename};
 
 /// The different main views/modules of the application.
 #[derive(Debug, PartialEq, Eq, Clone, Copy, Default)]
@@ -150,8 +150,6 @@ pub enum Action {
     CancelOverlay,
 }
 
-
-
 /// The global application state.
 #[derive(Debug)]
 pub struct App {
@@ -262,7 +260,9 @@ impl App {
             }
             KeyCode::Char('q') => Some(Action::Quit),
             KeyCode::Char('?') => Some(Action::ToggleHelp),
-            KeyCode::Char('s') if key.modifiers.contains(KeyModifiers::CONTROL) => Some(Action::ToggleSettings),
+            KeyCode::Char('s') if key.modifiers.contains(KeyModifiers::CONTROL) => {
+                Some(Action::ToggleSettings)
+            }
             KeyCode::Up => Some(Action::PreviousTab),
             KeyCode::Down => Some(Action::NextTab),
 
@@ -278,7 +278,9 @@ impl App {
             KeyCode::Char('s') if self.current_tab == Tab::Apps && !self.apps.is_scanning => {
                 Some(Action::ScanApps)
             }
-            KeyCode::Char('s') if self.current_tab == Tab::Packages && !self.packages.is_scanning => {
+            KeyCode::Char('s')
+                if self.current_tab == Tab::Packages && !self.packages.is_scanning =>
+            {
                 Some(Action::ScanPackages)
             }
             KeyCode::Char('s') if self.current_tab == Tab::Junk && !self.junk.is_scanning => {
@@ -328,7 +330,9 @@ impl App {
                         self.apps.selected = 0;
                         self.status_message = "Scanning installed applications".to_string();
                     }
-                    Tab::Packages if self.packages.items.is_empty() && !self.packages.is_scanning => {
+                    Tab::Packages
+                        if self.packages.items.is_empty() && !self.packages.is_scanning =>
+                    {
                         self.packages.is_scanning = true;
                         self.packages.items.clear();
                         self.packages.selected = 0;
@@ -496,7 +500,6 @@ impl App {
                 };
             }
             Action::SettingsSelect => self.apply_settings_selection(),
-
         }
     }
 
@@ -507,8 +510,7 @@ impl App {
                 let all = ThemeKind::ALL;
                 let idx = self.settings_selected % all.len();
                 Theme::set(all[idx]);
-                self.status_message =
-                    format!("Theme changed to {}", all[idx].name());
+                self.status_message = format!("Theme changed to {}", all[idx].name());
             }
             _ => {}
         }
@@ -593,7 +595,10 @@ impl App {
                 self.close_overlay();
             }
             Err(error) => {
-                self.status_message = format!("Operation failed: {}", sanitize_error_message(&error.to_string()));
+                self.status_message = format!(
+                    "Operation failed: {}",
+                    sanitize_error_message(&error.to_string())
+                );
             }
         }
     }
@@ -615,7 +620,10 @@ impl App {
         };
         self.status_message = match result {
             Ok(_) => "Opened with the system default application".to_string(),
-            Err(error) => format!("Unable to open item: {}", sanitize_error_message(&error.to_string())),
+            Err(error) => format!(
+                "Unable to open item: {}",
+                sanitize_error_message(&error.to_string())
+            ),
         };
     }
 
@@ -639,7 +647,12 @@ impl App {
                 self.files_rescan_requested = true;
                 self.files.selected = self.files.selected.saturating_sub(1);
             }
-            Err(error) => self.status_message = format!("Delete failed: {}", sanitize_error_message(&error.to_string())),
+            Err(error) => {
+                self.status_message = format!(
+                    "Delete failed: {}",
+                    sanitize_error_message(&error.to_string())
+                )
+            }
         }
     }
 

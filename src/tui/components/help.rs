@@ -98,7 +98,10 @@ fn shortcut(key: &str, description: &str) -> Line<'static> {
                 .fg(Theme::current().accent)
                 .add_modifier(Modifier::BOLD),
         ),
-        Span::styled(description.to_string(), Style::default().fg(Theme::current().text)),
+        Span::styled(
+            description.to_string(),
+            Style::default().fg(Theme::current().text),
+        ),
     ])
 }
 

@@ -40,7 +40,10 @@ impl Header {
 
         let content = Paragraph::new(vec![
             title,
-            Line::from(Span::styled(subtitle, Style::default().fg(Theme::current().muted))),
+            Line::from(Span::styled(
+                subtitle,
+                Style::default().fg(Theme::current().muted),
+            )),
         ])
         .alignment(Alignment::Left)
         .block(block);

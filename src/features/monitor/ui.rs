@@ -74,7 +74,10 @@ pub fn render(frame: &mut Frame, area: Rect, data: &MonitorData, scroll_offset: 
         let snapshot = Block::default()
             .borders(Borders::ALL)
             .border_type(BorderType::Rounded)
-            .title(format!(" Live snapshot  ·  {} entries ", data.snapshot_history.len()))
+            .title(format!(
+                " Live snapshot  ·  {} entries ",
+                data.snapshot_history.len()
+            ))
             .title_style(Theme::block_title())
             .border_style(Theme::border())
             .style(Style::default().bg(Theme::current().surface_alt));
@@ -123,7 +126,9 @@ pub fn render(frame: &mut Frame, area: Rect, data: &MonitorData, scroll_offset: 
         let max_scroll = snapshot_text.len().saturating_sub(rows[3].height as usize);
         let clamped_offset = scroll_offset.min(max_scroll);
         frame.render_widget(
-            Paragraph::new(snapshot_text).block(snapshot).scroll((clamped_offset as u16, 0)),
+            Paragraph::new(snapshot_text)
+                .block(snapshot)
+                .scroll((clamped_offset as u16, 0)),
             rows[3],
         );
     }

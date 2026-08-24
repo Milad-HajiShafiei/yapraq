@@ -5,7 +5,7 @@ use ratatui::{
     Frame,
     layout::{Constraint, Direction, Layout, Rect},
     style::{Modifier, Style},
-    widgets::{Block, BorderType, Borders, Cell, Paragraph, Row, Table},
+    widgets::{Block, BorderType, Borders, Cell, Paragraph, Row, Table, TableState},
 };
 
 pub fn render(frame: &mut Frame, area: Rect, state: &JunkState) {
@@ -85,7 +85,8 @@ pub fn render(frame: &mut Frame, area: Rect, state: &JunkState) {
             Cell::from(name.to_string()),
             Cell::from(path.to_string()).style(Style::default().fg(Theme::current().muted)),
             Cell::from(item.reason.clone()),
-            Cell::from(format_bytes(item.size)).style(Style::default().fg(Theme::current().secondary)),
+            Cell::from(format_bytes(item.size))
+                .style(Style::default().fg(Theme::current().secondary)),
         ])
         .style(style)
     });
@@ -110,5 +111,14 @@ pub fn render(frame: &mut Frame, area: Rect, state: &JunkState) {
     .row_highlight_style(Style::default().add_modifier(Modifier::REVERSED))
     .highlight_symbol("➤ ");
 
-    frame.render_widget(table, chunks[1]);
+    let visible_rows = chunks[1].height.saturating_sub(3) as usize;
+    let offset = if state.items.len() > visible_rows {
+        state.selected.min(state.items.len() - visible_rows)
+    } else {
+        0
+    };
+    let mut table_state = TableState::new()
+        .with_selected(Some(state.selected))
+        .with_offset(offset);
+    frame.render_stateful_widget(table, chunks[1], &mut table_state);
 }

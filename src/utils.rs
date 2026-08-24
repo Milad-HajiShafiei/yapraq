@@ -42,7 +42,7 @@ pub fn sanitize_error_message(error: &str) -> String {
         .collect::<String>()
         .trim()
         .to_string();
-    
+
     if sanitized.is_empty() {
         "An error occurred".to_string()
     } else {
@@ -65,14 +65,14 @@ pub fn sanitize_filename(name: &str) -> String {
 /// Returns true if the path doesn't contain suspicious patterns.
 pub fn is_path_safe(path: &std::path::Path) -> bool {
     let path_str = path.to_string_lossy();
-    
+
     // Check for common dangerous patterns
     !path_str.contains("..")  // Directory traversal
         && !path_str.contains("\0")  // Null bytes
         && !path_str.starts_with("/proc")  // Linux proc filesystem
         && !path_str.starts_with("/sys")  // Linux sys filesystem
         && !path_str.contains("~/.ssh")  // SSH keys
-        && !path_str.contains("~/.gnupg")  // GPG keys
+        && !path_str.contains("~/.gnupg") // GPG keys
 }
 
 #[cfg(test)]
