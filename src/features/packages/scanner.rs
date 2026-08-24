@@ -380,6 +380,7 @@ fn parse_at_version(line: &str) -> Option<(String, String)> {
         .trim_start_matches(|character| matches!(character, '├' | '└' | '─' | '│'))
         .trim();
     let (name, version) = line.rsplit_once('@')?;
+    let version = version.split_whitespace().next()?;
     if name.is_empty() || name.chars().any(char::is_whitespace) || version.is_empty() {
         return None;
     }
@@ -387,4 +388,31 @@ fn parse_at_version(line: &str) -> Option<(String, String)> {
         name.to_string(),
         version.trim_start_matches('v').to_string(),
     ))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{parse_at_version, parse_json_packages};
+
+    #[test]
+    fn parses_scoped_and_tree_prefixed_javascript_packages() {
+        assert_eq!(
+            parse_at_version("├── @scope/tool@1.2.3 deduped"),
+            Some(("@scope/tool".to_string(), "1.2.3".to_string()))
+        );
+        assert_eq!(parse_at_version("npm v10.0.0"), None);
+    }
+
+    #[test]
+    fn parses_pretty_printed_manager_json() {
+        let json = br#"{
+            "name": "demo",
+            "version": "1.2.3"
+        }"#;
+        let packages = parse_json_packages(json, "test");
+        assert_eq!(packages.len(), 1);
+        assert_eq!(packages[0].name, "demo");
+        assert_eq!(packages[0].version, "1.2.3");
+        assert_eq!(packages[0].manager, "test");
+    }
 }

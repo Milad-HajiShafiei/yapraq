@@ -65,7 +65,6 @@ impl PackagesState {
                 "pnpm" => format!("pnpm remove -g {}", pkg.name),
                 "cargo" => format!("cargo uninstall {}", pkg.name),
                 "gem" => format!("gem uninstall {}", pkg.name),
-                "go" => format!("go clean -modcache # {}", pkg.name),
                 _ => "Unknown package manager".to_string(),
             };
         } else {
